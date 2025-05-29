@@ -1,0 +1,91 @@
+/* Geral */
+html,
+body {
+    font-family: "Roboto", sans-serif;
+    height: 100%;
+}
+
+.customized-title {
+    font-size: 4.25rem;
+}
+
+.green-button {
+    background-color: rgb(74, 134, 80);
+}
+
+.green-button:hover {
+    background-color: rgba(36, 128, 44, 0.788);
+}
+
+.default-button:hover {
+    background-color: rgba(190, 190, 190, 0.788);
+}
+
+/* Header */
+.navbar {
+    background-color: rgb(42, 42, 44);
+}
+
+.navbar-element {
+    color: white;
+}
+
+.navbar-element:hover {
+    color: rgba(190, 190, 190, 0.788);
+}
+
+.site-name span {
+    color: rgb(55, 133, 61);
+}
+
+.navbar-list {
+    gap: 24px;
+}
+
+/* Conteúdo Index */
+.title-infos {
+    color: rgb(56, 52, 52);
+}
+
+.earnings {
+    background-color: rgba(95, 209, 104, 0.252);
+}
+
+.expenses {
+    background-color: rgba(223, 102, 102, 0.252);
+}
+
+.investments {
+    background-color: rgba(93, 153, 231, 0.252);
+}
+
+.text-results {
+    font-size: 4.25rem;
+}
+
+.text-value {
+    font-size: 3rem;
+}
+
+.box {
+    background-color: white;
+}
+
+.type-box,
+input {
+    border-width: 1px;
+    border-color: black;
+    border-style: solid;
+}
+
+fieldset div div input {
+    width: 22px;
+    height: 22px;
+    filter: grayscale(1);
+    margin: 0.5rem;
+}
+
+/* Footer */
+footer {
+    background-color: rgb(247, 247, 247);
+}
