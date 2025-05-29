@@ -66,4 +66,5 @@ O Sistema de Gerenciamento Financeiro Pessoal é uma aplicação web completa qu
 ![Captura de tela 2025-05-28 235707](https://github.com/user-attachments/assets/aa83515c-90df-413d-8663-81e2f5efcd20)
 - Página de transações
 
-# == Projeto ainda em desenvolvimento ==
+# Projeto ainda em desenvolvimento ==========
+Pretendo colocar algumas funções a mais no futuro, como excluir transações, filtrar por data, e criação de gráficos com suas entradas e saídas na página inicial.
