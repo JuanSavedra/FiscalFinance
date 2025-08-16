@@ -1,8 +1,4 @@
 # Sistema de Gerenciamento Financeiro Pessoal
-Bootstrap
-Java
-Oracle
-Apache Tomcat
 
 # Visão Geral
 O Sistema de Gerenciamento Financeiro Pessoal é uma aplicação web completa que permite aos usuários gerenciar suas transações financeiras e metas de poupança de forma segura e intuitiva. Desenvolvido com tecnologias modernas e robustas, este projeto oferece autenticação segura, criptografia de dados e notificações por e-mail para máxima segurança do usuário.
