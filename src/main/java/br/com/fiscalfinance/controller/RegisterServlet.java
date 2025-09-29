@@ -14,21 +14,16 @@ import java.sql.SQLException;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
-    private AccountDao dao;
-
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            dao = DaoFactory.getAccountDao();
-
+            AccountDao dao = DaoFactory.getAccountDao();
             String username = req.getParameter("UsuarioRegistro");
             String name = req.getParameter("EmailRegistro");
             String password = req.getParameter("SenhaRegistro");
 
             Account account = new Account(username, name, password);
-
             dao.register(account);
-            dao.closeConnection();
         } catch (SQLException error) {
             System.err.println(error);
         }

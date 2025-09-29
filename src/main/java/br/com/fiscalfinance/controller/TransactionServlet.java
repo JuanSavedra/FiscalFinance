@@ -18,8 +18,6 @@ import java.util.List;
 
 @WebServlet("/transactions")
 public class TransactionServlet extends HttpServlet {
-    private TransactionDao dao;
-
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
@@ -30,6 +28,7 @@ public class TransactionServlet extends HttpServlet {
                 break;
             case "edit":
                 editTransaction(req, resp);
+                break;
             case "delete":
                 deleteTransaction(req, resp);
                 break;
@@ -38,9 +37,8 @@ public class TransactionServlet extends HttpServlet {
 
     private void deleteTransaction(HttpServletRequest req, HttpServletResponse resp) {
         try {
-            dao = DaoFactory.getTransactionDao();
-
-            long id = Long.parseLong(req.getParameter("IdDelete"));
+            TransactionDao dao = DaoFactory.getTransactionDao();
+            long id = Long.parseLong(req.getParameter("Id"));
             dao.remove(id);
             req.setAttribute("message", "Transação deletada com sucesso!");
         } catch (SQLException | EntityNotFoundException error) {
@@ -61,7 +59,7 @@ public class TransactionServlet extends HttpServlet {
 
     private void registerTransaction(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            dao = DaoFactory.getTransactionDao();
+            TransactionDao dao = DaoFactory.getTransactionDao();
             String name = req.getParameter("Nome");
             String type = req.getParameter("Tipo");
             double value = Double.parseDouble(req.getParameter("Valor"));
@@ -70,19 +68,17 @@ public class TransactionServlet extends HttpServlet {
             int foreignAccountId = 1;
 
             Transaction transaction = new Transaction(name, type, value, description, createdAt, foreignAccountId);
-
             dao.register(transaction);
-            dao.closeConnection();
         } catch (SQLException error) {
             System.err.println(error.getMessage());
         }
 
-        req.getRequestDispatcher("index.jsp").forward(req, resp);
+        resp.sendRedirect("home");
     }
 
     private void editTransaction(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            dao = DaoFactory.getTransactionDao();
+            TransactionDao dao = DaoFactory.getTransactionDao();
             long id = Long.parseLong(req.getParameter("Id"));
             String name = req.getParameter("Nome");
             String type = req.getParameter("Tipo");
@@ -90,9 +86,7 @@ public class TransactionServlet extends HttpServlet {
             String description = req.getParameter("Descrição");
 
             Transaction transaction = new Transaction(id, name, type, value, description);
-
             dao.edit(transaction);
-            dao.closeConnection();
         } catch (SQLException error) {
             System.err.println(error.getMessage());
         }
@@ -125,7 +119,7 @@ public class TransactionServlet extends HttpServlet {
     }
 
     private void openEditForm(HttpServletRequest req, HttpServletResponse resp) throws SQLException, EntityNotFoundException, ServletException, IOException {
-        dao = DaoFactory.getTransactionDao();
+        TransactionDao dao = DaoFactory.getTransactionDao();
         long id = Long.parseLong(req.getParameter("id"));
         Transaction transaction = dao.search(id);
         req.setAttribute("transaction", transaction);
@@ -133,10 +127,9 @@ public class TransactionServlet extends HttpServlet {
     }
 
     private void listingTransactions(HttpServletRequest req, HttpServletResponse resp) throws SQLException, ServletException, IOException {
-        dao = DaoFactory.getTransactionDao();
+        TransactionDao dao = DaoFactory.getTransactionDao();
         List<Transaction> transactions = dao.listing();
         req.setAttribute("transactionsList", transactions);
-        dao.closeConnection();
         req.getRequestDispatcher("transacoes.jsp").forward(req, resp);
     }
 }

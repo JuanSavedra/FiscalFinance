@@ -19,37 +19,33 @@ import java.time.LocalDateTime;
 
 @WebServlet("/login")
 public class AccountServlet extends HttpServlet {
-    private AccountDao dao;
-    private EmailBo bo;
-
-    public AccountServlet() throws SQLException {
-        dao = DaoFactory.getAccountDao();
-        bo = new EmailBo();
-    }
-
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String email = request.getParameter("Email");
-        String senha = request.getParameter("Senha");
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException
+    {
+        String email = req.getParameter("Email");
+        String senha = req.getParameter("Senha");
 
         Account account = new Account(email, senha);
 
         try {
-            if (dao.validateAccount(account)) {
-                HttpSession session = request.getSession();
-                session.setAttribute("account", email);
-                request.getRequestDispatcher("index.jsp").forward(request, response);
+            AccountDao dao = DaoFactory.getAccountDao();
+            EmailBo bo = new EmailBo();
 
-                try {
-                    String message = "Um login foi realizado na plataforma 'FiscalFinance' em " + LocalDateTime.now();
-                    bo.sendEmail(email, "Login realizado.", message);
-                } catch (EmailException error) {
-                    error.printStackTrace();
-                }
+            if (dao.validateAccount(account)) {
+                HttpSession session = req.getSession();
+                session.setAttribute("account", email);
+                resp.sendRedirect("home");
+
+//                try {
+//                    String message = "Um login foi realizado na plataforma 'FiscalFinance' em " + LocalDateTime.now();
+//                    bo.sendEmail(email, "Login realizado.", message);
+//                } catch (EmailException error) {
+//                    error.printStackTrace();
+//                }
             } else {
-                request.setAttribute("error", "Email e/ou senha inválidos.");
-                request.getRequestDispatcher("home.jsp").forward(request, response);
+                req.setAttribute("error", "Email e/ou senha inválidos.");
+                req.getRequestDispatcher("home.jsp").forward(req, resp);
             }
         } catch (SQLException error) {
             throw new RuntimeException(error);

@@ -21,7 +21,7 @@ public class ConnectionManager {
     public Connection getConnection() {
         Connection connection = null;
 
-        String URL = "[url da oracle]";
+        String URL = "[conexao]";
         String USER = "[usuario]";
         String PASSWORD = "[senha]";
 

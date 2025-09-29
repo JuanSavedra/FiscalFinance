@@ -9,13 +9,28 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TransactionDao {
-    private Connection connection;
+    public Map<String, Double> getTotalsByType() throws SQLException {
+        Map<String, Double> totals = new HashMap<>();
+        String sql = "SELECT tp_transacao, SUM(vl_transacao) as total FROM t_transacao GROUP BY tp_transacao";
 
-    public TransactionDao() throws SQLException {
-        connection = ConnectionManager.getConnectionManager().getConnection();
+        try (Connection conn = ConnectionManager.getConnectionManager().getConnection();
+             PreparedStatement stm = conn.prepareStatement(sql))
+        {
+            try (ResultSet result = stm.executeQuery()) {
+                while (result.next()) {
+                    String transactionType = result.getString("tp_transacao");
+                    double totalValue = result.getDouble("total");
+                    totals.put(transactionType, totalValue);
+                }
+            }
+        }
+
+        return totals;
     }
 
     public void register(Transaction transaction) throws SQLException {
@@ -23,18 +38,17 @@ public class TransactionDao {
                 "tp_transacao, vl_transacao, desc_transacao, criado_em, f_cnt_id_conta) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
-        PreparedStatement stm = connection.prepareStatement(sql);
-        stm.setString(1, transaction.getName());
-        stm.setString(2, transaction.getType());
-        stm.setDouble(3, transaction.getValue());
-        stm.setString(4, transaction.getDescription());
-        stm.setString(5, transaction.getCreatedAt());
-        stm.setLong(6, transaction.getForeignKeyAccount());
-        stm.executeUpdate();
-    }
-
-    public void closeConnection() throws SQLException {
-        connection.close();
+        try (Connection conn = ConnectionManager.getConnectionManager().getConnection();
+             PreparedStatement stm = conn.prepareStatement(sql))
+        {
+            stm.setString(1, transaction.getName());
+            stm.setString(2, transaction.getType());
+            stm.setDouble(3, transaction.getValue());
+            stm.setString(4, transaction.getDescription());
+            stm.setString(5, transaction.getCreatedAt());
+            stm.setLong(6, transaction.getForeignKeyAccount());
+            stm.executeUpdate();
+        }
     }
 
     public Transaction parseTransaction(ResultSet result) throws SQLException {
@@ -53,25 +67,31 @@ public class TransactionDao {
     public Transaction search(long id) throws SQLException, EntityNotFoundException {
         String sql = "SELECT * FROM t_transacao WHERE id_transacao = ?";
 
-        PreparedStatement stm = connection.prepareStatement(sql);
-        stm.setLong(1, id);
-        ResultSet result = stm.executeQuery();
+        try (Connection conn = ConnectionManager.getConnectionManager().getConnection();
+             PreparedStatement stm = conn.prepareStatement(sql))
+        {
+            stm.setLong(1, id);
+            try (ResultSet rs = stm.executeQuery()) {
+                if (!rs.next())
+                    throw new EntityNotFoundException("Transação não encontrada.");
 
-        if (!result.next())
-            throw new EntityNotFoundException("Transação não encontrada.");
-
-        return parseTransaction(result);
+                return parseTransaction(rs);
+            }
+        }
     }
 
     public List<Transaction> listing() throws SQLException {
+        List<Transaction> transactions = new ArrayList<>();
         String sql = "SELECT * FROM t_transacao ORDER BY id_transacao ASC";
 
-        PreparedStatement stm = connection.prepareStatement(sql);
-        ResultSet result = stm.executeQuery();
-        List<Transaction> transactions = new ArrayList<>();
-
-        while (result.next()) {
-            transactions.add(parseTransaction(result));
+        try (Connection conn = ConnectionManager.getConnectionManager().getConnection();
+             PreparedStatement stm = conn.prepareStatement(sql))
+        {
+            try(ResultSet rs = stm.executeQuery()) {
+                while (rs.next()) {
+                    transactions.add(parseTransaction(rs));
+                }
+            }
         }
 
         return transactions;
@@ -81,19 +101,30 @@ public class TransactionDao {
         String sql = "UPDATE t_transacao SET nm_transacao = ?, " +
                 "tp_transacao = ?, vl_transacao = ?, desc_transacao = ? WHERE id_transacao = ?";
 
-        PreparedStatement stm = connection.prepareStatement(sql);
-        stm.setString(1, transaction.getName());
-        stm.setString(2, transaction.getType());
-        stm.setDouble(3, transaction.getValue());
-        stm.setString(4, transaction.getDescription());
-        stm.setLong(5, transaction.getId());
-        stm.executeUpdate();
+        try (Connection conn = ConnectionManager.getConnectionManager().getConnection();
+             PreparedStatement stm = conn.prepareStatement(sql))
+        {
+            stm.setString(1, transaction.getName());
+            stm.setString(2, transaction.getType());
+            stm.setDouble(3, transaction.getValue());
+            stm.setString(4, transaction.getDescription());
+            stm.setLong(5, transaction.getId());
+            stm.executeUpdate();
+        }
     }
 
     public void remove(long id) throws SQLException, EntityNotFoundException {
         String sql = "DELETE FROM t_transacao WHERE id_transacao = ?";
 
-        PreparedStatement stm = connection.prepareStatement(sql);
-        stm.setLong(1, id);
+        try (Connection conn = ConnectionManager.getConnectionManager().getConnection();
+             PreparedStatement stm = conn.prepareStatement(sql))
+        {
+            stm.setLong(1, id);
+            int line = stm.executeUpdate();
+
+            if (line == 0) {
+                throw new EntityNotFoundException("Transação não encontrada para ser removido.");
+            }
+        }
     }
 }

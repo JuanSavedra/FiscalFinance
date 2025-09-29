@@ -19,8 +19,6 @@ import java.util.List;
 
 @WebServlet("/deposits")
 public class SavingServlet extends HttpServlet {
-    private SavingDao dao;
-
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
@@ -32,41 +30,60 @@ public class SavingServlet extends HttpServlet {
             case "edit":
                 editDeposit(req, resp);
                 break;
+            case "delete":
+                deleteDeposit(req, resp);
+                break;
+        }
+    }
+
+    private void deleteDeposit(HttpServletRequest req, HttpServletResponse resp) {
+        try {
+            SavingDao dao = DaoFactory.getSavingDao();
+            long id = Long.parseLong(req.getParameter("Id"));
+            dao.remove(id);
+            req.setAttribute("message", "Depõsito deletada com sucesso!");
+        } catch (SQLException | EntityNotFoundException error) {
+            System.err.println(error.getMessage());
+            req.setAttribute("message", "Erro ao deletar!");
+        }
+
+        try {
+            listingDeposits(req, resp);
+        } catch (SQLException error) {
+            System.err.println(error.getMessage());
+        } catch (ServletException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     private void registerDeposit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            dao = DaoFactory.getSavingDao();
-
+            SavingDao dao = DaoFactory.getSavingDao();
             String description = req.getParameter("Descrição");
             double value = Double.parseDouble(req.getParameter("Valor"));
             String createdAt = DateTimeFormatter.ofPattern("dd/MM/yyyy").format(LocalDateTime.now());
             int foreignAccountId = 1;
 
             Saving saving = new Saving(description, value, createdAt, foreignAccountId);
-
             dao.register(saving);
-            dao.closeConnection();
         } catch (SQLException error) {
             System.err.println(error.getMessage());
         }
 
-        req.getRequestDispatcher("index.jsp").forward(req, resp);
+        resp.sendRedirect("home");
     }
 
     private void editDeposit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            dao = DaoFactory.getSavingDao();
-
+            SavingDao dao = DaoFactory.getSavingDao();
             long id = Long.parseLong(req.getParameter("Id"));
             String description = req.getParameter("Descrição");
             double value = Double.parseDouble(req.getParameter("Valor"));
 
             Saving saving = new Saving(id, description, value);
-
             dao.edit(saving);
-            dao.closeConnection();
         } catch (SQLException error) {
             System.err.println(error.getMessage());
         }
@@ -99,7 +116,7 @@ public class SavingServlet extends HttpServlet {
     }
 
     private void openEditForm(HttpServletRequest req, HttpServletResponse resp) throws SQLException, EntityNotFoundException, ServletException, IOException {
-        dao = DaoFactory.getSavingDao();
+        SavingDao dao = DaoFactory.getSavingDao();
         long id = Long.parseLong(req.getParameter("id"));
         Saving saving = dao.search(id);
         req.setAttribute("deposit", saving);
@@ -107,10 +124,9 @@ public class SavingServlet extends HttpServlet {
     }
 
     private void listingDeposits(HttpServletRequest req, HttpServletResponse resp) throws SQLException, ServletException, IOException {
-        dao = DaoFactory.getSavingDao();
+        SavingDao dao = DaoFactory.getSavingDao();
         List<Saving> savings = dao.listing();
         req.setAttribute("depositsList", savings);
-        dao.closeConnection();
         req.getRequestDispatcher("poupanca.jsp").forward(req, resp);
     }
 }

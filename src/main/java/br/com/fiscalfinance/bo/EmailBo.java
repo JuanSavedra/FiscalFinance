@@ -8,8 +8,8 @@ import jakarta.mail.internet.MimeMessage;
 import java.util.Properties;
 
 public class EmailBo {
-    private static final String APP_EMAIL = "[email@gmail.com]";
-    private static final String APP_PASSWORD = "[senha-de-app]";
+    private static final String APP_EMAIL = "";
+    private static final String APP_PASSWORD = "";
 
     public void sendEmail(String receiver, String subject, String content) throws EmailException {
         Properties props = new Properties();

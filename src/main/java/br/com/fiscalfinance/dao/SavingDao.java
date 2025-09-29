@@ -12,10 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SavingDao {
-    private Connection connection;
+    public double getTotalDeposits() throws SQLException {
+        String sql = "SELECT SUM(sld_poupanca) as total FROM t_poupanca";
+        double total = 0.0;
 
-    public SavingDao() throws SQLException {
-        connection = ConnectionManager.getConnectionManager().getConnection();
+        try (Connection conn = ConnectionManager.getConnectionManager().getConnection();
+             PreparedStatement stm = conn.prepareStatement(sql))
+        {
+            try(ResultSet rs = stm.executeQuery()) {
+                while (rs.next()) {
+                    total = rs.getDouble("total");
+                }
+            }
+        }
+
+        return total;
     }
 
     public void register(Saving saving) throws SQLException {
@@ -23,16 +34,15 @@ public class SavingDao {
                 "sld_poupanca, criado_em, f_cnt_id_conta) " +
                 "VALUES (?, ?, ?, ?)";
 
-        PreparedStatement stm = connection.prepareStatement(sql);
-        stm.setString(1, saving.getDescription());
-        stm.setDouble(2, saving.getValue());
-        stm.setString(3, saving.getCreatedAt());
-        stm.setLong(4, saving.getForeignKeyAccount());
-        stm.executeUpdate();
-    }
-
-    public void closeConnection() throws SQLException {
-        connection.close();
+        try (Connection conn = ConnectionManager.getConnectionManager().getConnection();
+             PreparedStatement stm = conn.prepareStatement(sql))
+        {
+            stm.setString(1, saving.getDescription());
+            stm.setDouble(2, saving.getValue());
+            stm.setString(3, saving.getCreatedAt());
+            stm.setLong(4, saving.getForeignKeyAccount());
+            stm.executeUpdate();
+        }
     }
 
     public Saving parseSaving(ResultSet result) throws SQLException {
@@ -49,25 +59,32 @@ public class SavingDao {
     public Saving search(long id) throws SQLException, EntityNotFoundException {
         String sql = "SELECT * FROM t_poupanca WHERE id_poupanca = ?";
 
-        PreparedStatement stm = connection.prepareStatement(sql);
-        stm.setLong(1, id);
-        ResultSet result = stm.executeQuery();
+        try (Connection conn = ConnectionManager.getConnectionManager().getConnection();
+             PreparedStatement stm = conn.prepareStatement(sql))
+        {
+            stm.setLong(1, id);
 
-        if (!result.next())
-            throw new EntityNotFoundException("Depósito não encontrado.");
+            try(ResultSet rs = stm.executeQuery()) {
+                if (!rs.next())
+                    throw new EntityNotFoundException("Depósito não encontrado.");
 
-        return parseSaving(result);
+                return parseSaving(rs);
+            }
+        }
     }
 
     public List<Saving> listing() throws SQLException {
+        List<Saving> deposits = new ArrayList<>();
         String sql = "SELECT * FROM t_poupanca ORDER BY id_poupanca ASC";
 
-        PreparedStatement stm = connection.prepareStatement(sql);
-        ResultSet result = stm.executeQuery();
-        List<Saving> deposits = new ArrayList<>();
-
-        while (result.next()) {
-            deposits.add(parseSaving(result));
+        try (Connection conn = ConnectionManager.getConnectionManager().getConnection();
+             PreparedStatement stm = conn.prepareStatement(sql))
+        {
+            try(ResultSet rs = stm.executeQuery()) {
+                while (rs.next()) {
+                    deposits.add(parseSaving(rs));
+                }
+            }
         }
 
         return deposits;
@@ -77,22 +94,28 @@ public class SavingDao {
         String sql = "UPDATE t_poupanca SET desc_poupanca = ?, " +
                 "sld_poupanca = ? WHERE id_poupanca = ?";
 
-        PreparedStatement stm = connection.prepareStatement(sql);
-        stm.setString(1, saving.getDescription());
-        stm.setDouble(2, saving.getValue());
-        stm.setLong(3, saving.getId());
-        stm.executeUpdate();
+        try (Connection conn = ConnectionManager.getConnectionManager().getConnection();
+             PreparedStatement stm = conn.prepareStatement(sql))
+        {
+            stm.setString(1, saving.getDescription());
+            stm.setDouble(2, saving.getValue());
+            stm.setLong(3, saving.getId());
+            stm.executeUpdate();
+        }
     }
 
     public void remove(long id) throws SQLException, EntityNotFoundException {
         String sql = "DELETE FROM t_poupanca WHERE id_poupanca = ?";
 
-        PreparedStatement stm = connection.prepareStatement(sql);
-        stm.setLong(1, id);
+        try (Connection conn = ConnectionManager.getConnectionManager().getConnection();
+             PreparedStatement stm = conn.prepareStatement(sql))
+        {
+            stm.setLong(1, id);
 
-        int line = stm.executeUpdate();
-        if (line == 0) {
-            throw new EntityNotFoundException("Depósito não encontrado para ser removido.");
+            int line = stm.executeUpdate();
+            if (line == 0) {
+                throw new EntityNotFoundException("Depósito não encontrado para ser removido.");
+            }
         }
     }
 }
