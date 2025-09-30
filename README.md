@@ -47,14 +47,19 @@ Para mais detalhes, consulte o arquivo `FiscalFinance.sql`.
 
 ## Imagens do Projeto
 **Tela de login:**
+<img width="1913" height="811" alt="Captura de tela 2025-09-29 135737" src="https://github.com/user-attachments/assets/754c42e9-7235-43fd-8cae-8727511c9c1c" />
 
 **Página inicial:**
+<img width="1912" height="430" alt="Captura de tela 2025-09-29 135753" src="https://github.com/user-attachments/assets/69c8c79c-a941-4d57-88de-e3581bb87e9b" />
 
 **Transações:**
+<img width="1913" height="726" alt="Captura de tela 2025-09-29 135807" src="https://github.com/user-attachments/assets/07687bb4-2e3f-44c5-a8be-e6c699a8e24f" />
 
 **Depósitos:**
+<img width="1914" height="517" alt="Captura de tela 2025-09-29 135818" src="https://github.com/user-attachments/assets/dea27c58-b198-49f8-9899-3e817fef5e91" />
 
 **Adicionar:**
+<img width="1916" height="796" alt="Captura de tela 2025-09-29 135829" src="https://github.com/user-attachments/assets/a85130fd-d357-4e3e-8856-a47260188ca6" />
 
 ## Como Executar o Projeto
 
